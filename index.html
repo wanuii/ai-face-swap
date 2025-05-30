@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
+
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vite + React</title>
+  </head>
+  <body>
+    <div id="loader">
+      <div class="spinner-circle"></div>
+      <p>載入中...</p>
+    </div>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
+<style>
+  #loader {
+    background: linear-gradient(to bottom, #f1f5f9, #e2e8f0);
+    color: #4b5563;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-family: sans-serif;
+  }
+
+  .spinner-circle {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #cbd5e1;
+    border-top: 4px solid #59708F;
+    /* 主題色 */
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 16px;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  #loader p {
+    font-size: 1.25rem;
+    font-weight: bold;
+    animation: breathing 1.4s ease-in-out infinite;
+  }
+
+  @keyframes breathing {
+    0% {
+      opacity: 0.4;
+      transform: scale(0.96);
+    }
+
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  </style>
