@@ -91,7 +91,7 @@ function UploadDialog({ open, onClose, blockType, onConfirm }) {
         <div className="sm:w-1/2 pl-2">
           <p className="text-xl">選擇模板</p>
           <div className="w-full bg-slate-100 rounded-md mt-5 p-2">
-            <p>拖曳或點擊以選擇圖片</p>
+            <p>模板圖片來自 Pexels ， 僅供測試</p>
             <div className="flex flex-wrap gap-1 mt-2 max-h-[270px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200">
               {faceList.map((img, i) => (
                 <img
