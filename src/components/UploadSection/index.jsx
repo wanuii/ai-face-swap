@@ -21,33 +21,18 @@ function Index() {
   const [currentType, setCurrentType] = useState(null);
   const requestIdRef = useRef(0);
 
-  const [uploadBlocks, setUploadBlocks] = useState([
-    {
-      imageSrc: sample_1,
-      blockType: "Portrait",
-      onClick: () => setCurrentType("Portrait"),
-    },
-    {
-      imageSrc: sample_2,
-      blockType: "Swap",
-      onClick: () => setCurrentType("Swap"),
-    },
-    {
-      imageSrc: sample_3,
-      blockType: "Result",
-      onClick: () => setCurrentType("Result"),
-    },
-  ]);
+  const [uploadBlocks, setUploadBlocks] = useState({
+    Portrait: sample_1,
+    Swap: sample_2,
+    Result: sample_3,
+  });
 
   // 換臉函式：接收兩張圖，組成 FormData 並呼叫 API
   const runSwap = async (portraitImage, swapImage) => {
-    let thisRequestId;
+    // 為每次換臉產生唯一 requestId，並保留這次的編號做後續比對。
+    const thisRequestId = ++requestIdRef.current;
+    setIsLoading(true);
     try {
-      // 為每次換臉產生唯一 requestId，並保留這次的編號做後續比對。
-      requestIdRef.current += 1;
-      thisRequestId = requestIdRef.current;
-      setIsLoading(true);
-
       const formData = new FormData();
       // 根據後端要求：file1 = 模板，file2 = 使用者照
       formData.append("file1", await urlToFile(swapImage, "swap.jpg"));
@@ -66,22 +51,31 @@ function Index() {
       }
 
       const blob = await res.blob();
+      const outputUrl = URL.createObjectURL(blob);
       if (thisRequestId === requestIdRef.current) {
-        const outputUrl = URL.createObjectURL(blob);
-        setUploadBlocks((prev) =>
-          prev.map((block) =>
-            block.blockType === "Result"
-              ? { ...block, imageSrc: outputUrl }
-              : block
-          )
-        );
+        setUploadBlocks((prev) => ({ ...prev, Result: outputUrl }));
         setIsLoading(false);
       }
     } catch (err) {
       console.error("換臉失敗", err);
     }
   };
+  // 處理上傳確認邏輯，統一管理更新與換臉執行
+  const handleUploadConfirm = (imageData) => {
+    if (!currentType) return;
 
+    const updated = { ...uploadBlocks, [currentType]: imageData };
+    setUploadBlocks(updated);
+    setCurrentType(null);
+
+    const portraitImage =
+      currentType === "Portrait" ? imageData : updated.Portrait;
+    const swapImage = currentType === "Swap" ? imageData : updated.Swap;
+
+    if (portraitImage && swapImage) {
+      runSwap(portraitImage, swapImage);
+    }
+  };
   return (
     <>
       <div
@@ -90,59 +84,31 @@ function Index() {
         style={{ backgroundImage: `url(${Image})` }}
       >
         <div className="flex flex-col md:flex-row lg:gap-10 md:gap-4 gap-10 items-center py-10">
-          {uploadBlocks.map((block, index) => (
+          {Object.entries(uploadBlocks).map(([type, src]) => (
             <ImageUploadBlock
-              key={index}
-              imageSrc={block.imageSrc}
-              blockType={block.blockType}
-              onViewClick={block.onClick}
-              loading={block.blockType === "Result" && isLoading}
+              key={type}
+              imageSrc={src}
+              blockType={type}
+              onViewClick={() => setCurrentType(type)}
+              loading={type === "Result" && isLoading}
             />
           ))}
         </div>
       </div>
-
       {/* 上傳 Modal */}
       <UploadDialog
         open={currentType === "Portrait" || currentType === "Swap"}
         onClose={() => setCurrentType(null)}
         blockType={currentType}
-        onConfirm={(imageData) => {
-          const isPortrait = currentType === "Portrait";
-          const isSwap = currentType === "Swap";
-
-          // ✅ 更新對應圖片區塊
-          const updatedBlocks = uploadBlocks.map((block) =>
-            block.blockType === currentType
-              ? { ...block, imageSrc: imageData }
-              : block
-          );
-
-          setUploadBlocks(updatedBlocks);
-          setCurrentType(null);
-
-          // ✅ 呼叫換臉（圖片順序：portrait 是使用者照、swap 是模板）
-          const portraitImage = isPortrait
-            ? imageData
-            : uploadBlocks.find((b) => b.blockType === "Portrait")?.imageSrc;
-          const swapImage = isSwap
-            ? imageData
-            : uploadBlocks.find((b) => b.blockType === "Swap")?.imageSrc;
-          // ✅ 換臉觸發邏輯：確認兩張圖都有，就執行
-          if (portraitImage && swapImage) {
-            runSwap(portraitImage, swapImage);
-          }
-        }}
+        onConfirm={handleUploadConfirm}
       />
-
       {/* 查看結果 Modal */}
       <ResultDialog
         open={currentType === "Result"}
         onClose={() => setCurrentType(null)}
         imageSrc={{
-          resultImage: uploadBlocks.find((b) => b.blockType === "Result")
-            ?.imageSrc,
-          swapImage: uploadBlocks.find((b) => b.blockType === "Swap")?.imageSrc,
+          resultImage: uploadBlocks.Result,
+          swapImage: uploadBlocks.Swap,
         }}
       />
       <Toaster position="top-center" />
