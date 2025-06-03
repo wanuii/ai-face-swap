@@ -4,7 +4,7 @@ import { useState } from "react";
 
 const { Dragger } = Upload;
 
-function UploadDialog({ open, onClose, blockType, onConfirm }) {
+function UploadDialog({ open, onClose, onConfirm }) {
   const [previewUrl, setPreviewUrl] = useState(null);
   const faceImages = import.meta.glob("@/assets/templates/*.jpg", {
     eager: true,

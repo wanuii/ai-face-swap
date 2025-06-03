@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Image from "@/assets/bg_img.webp";
 import sample_1 from "@/assets/sample_1.webp";
 import sample_2 from "@/assets/sample_2.webp";
@@ -17,7 +17,9 @@ const urlToFile = async (url, filename) => {
 };
 
 function Index() {
+  const [isLoading, setIsLoading] = useState(false);
   const [currentType, setCurrentType] = useState(null);
+  const requestIdRef = useRef(0);
 
   const [uploadBlocks, setUploadBlocks] = useState([
     {
@@ -37,35 +39,44 @@ function Index() {
     },
   ]);
 
-  // ✅ 換臉函式：接收兩張圖，自行組 FormData 並呼叫 API
+  // 換臉函式：接收兩張圖，組成 FormData 並呼叫 API
   const runSwap = async (portraitImage, swapImage) => {
+    let thisRequestId;
     try {
-      const formData = new FormData();
+      // 為每次換臉產生唯一 requestId，並保留這次的編號做後續比對。
+      requestIdRef.current += 1;
+      thisRequestId = requestIdRef.current;
+      setIsLoading(true);
 
+      const formData = new FormData();
       // 根據後端要求：file1 = 模板，file2 = 使用者照
       formData.append("file1", await urlToFile(swapImage, "swap.jpg"));
       formData.append("file2", await urlToFile(portraitImage, "portrait.jpg"));
 
       const res = await swapFaceAPI(formData);
       if (!res.ok) throw new Error("換臉 API 回傳錯誤");
+      // 已經有更新的請求正在處理，這筆結果作廢
+      if (thisRequestId !== requestIdRef.current) return;
+
       const contentType = res.headers.get("Content-Type");
       if (!contentType?.includes("image")) {
         const err = await res.json();
         toast.error(err.error);
         return;
       }
+
       const blob = await res.blob();
-      console.log("blob", blob);
-      const outputUrl = URL.createObjectURL(blob);
-      console.log("outputUrl", outputUrl);
-      // ✅ 更新 Result 區塊
-      setUploadBlocks((prev) =>
-        prev.map((block) =>
-          block.blockType === "Result"
-            ? { ...block, imageSrc: outputUrl }
-            : block
-        )
-      );
+      if (thisRequestId === requestIdRef.current) {
+        const outputUrl = URL.createObjectURL(blob);
+        setUploadBlocks((prev) =>
+          prev.map((block) =>
+            block.blockType === "Result"
+              ? { ...block, imageSrc: outputUrl }
+              : block
+          )
+        );
+        setIsLoading(false);
+      }
     } catch (err) {
       console.error("換臉失敗", err);
     }
@@ -85,6 +96,7 @@ function Index() {
               imageSrc={block.imageSrc}
               blockType={block.blockType}
               onViewClick={block.onClick}
+              loading={block.blockType === "Result" && isLoading}
             />
           ))}
         </div>

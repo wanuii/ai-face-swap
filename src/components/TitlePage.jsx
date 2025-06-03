@@ -51,7 +51,7 @@ function TitlePage() {
             target="_blank"
             rel="noopener noreferrer"
           >
-            <FaInstagram className="text-white text-xl" />
+            <FaInstagram className="text-black text-xl" />
           </a>
 
           {/* Facebook */}
@@ -60,7 +60,7 @@ function TitlePage() {
             target="_blank"
             rel="noopener noreferrer"
           >
-            <FaFacebookF className="text-white text-xl" />
+            <FaFacebookF className="text-black text-xl" />
           </a>
 
           {/* Twitter */}
@@ -69,7 +69,7 @@ function TitlePage() {
             target="_blank"
             rel="noopener noreferrer"
           >
-            <FaTwitter className="text-white text-xl" />
+            <FaTwitter className="text-black text-xl" />
           </a>
         </div>
       </div>
