@@ -39,25 +39,32 @@ function Index() {
       formData.append("file2", await urlToFile(portraitImage, "portrait.jpg"));
 
       const res = await swapFaceAPI(formData);
-      if (!res.ok) throw new Error("換臉 API 回傳錯誤");
-      // 已經有更新的請求正在處理，這筆結果作廢
-      if (thisRequestId !== requestIdRef.current) return;
-
-      const contentType = res.headers.get("Content-Type");
+      const contentType = res.headers["content-type"];
       if (!contentType?.includes("image")) {
-        const err = await res.json();
-        toast.error(err.error);
+        toast.error("回傳內容非圖片");
         return;
       }
+      // if (!res.ok) toast.error("換臉 API 回傳錯誤");
+      // // 已經有更新的請求正在處理，這筆結果作廢
+      // if (thisRequestId !== requestIdRef.current) return;
 
-      const blob = await res.blob();
+      // const contentType = res.headers.get("Content-Type");
+      // if (!contentType?.includes("image")) {
+      //   const err = await res.json();
+      //   toast.error(err.error);
+      //   return;
+      // }
+      const blob = new Blob([res.data], { type: contentType });
       const outputUrl = URL.createObjectURL(blob);
+      // const blob = await res.blob();
+      // const outputUrl = URL.createObjectURL(blob);
       if (thisRequestId === requestIdRef.current) {
         setUploadBlocks((prev) => ({ ...prev, Result: outputUrl }));
         setIsLoading(false);
       }
     } catch (err) {
       console.error("換臉失敗", err);
+      toast.error("換臉 API 回傳錯誤");
     }
   };
   // 處理上傳確認邏輯，統一管理更新與換臉執行
