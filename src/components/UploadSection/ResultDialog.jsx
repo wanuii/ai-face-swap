@@ -1,10 +1,12 @@
 import { Modal, Button } from "antd";
 import { FaInstagram, FaFacebookF, FaTwitter } from "react-icons/fa";
+
 const ResultDialog = ({ open, onClose, imageSrc }) => {
   const imageList = [
     { src: imageSrc.swapImage, alt: "原圖" },
     { src: imageSrc.resultImage, alt: "結果圖片" },
   ];
+
   return (
     <Modal
       open={open}
@@ -19,13 +21,18 @@ const ResultDialog = ({ open, onClose, imageSrc }) => {
             key={index}
             className="w-[250px] h-[250px] flex items-center justify-center border-4 border-white"
           >
-            <img
-              src={item.src}
-              alt={item.alt}
-              className="w-auto h-full object-contain"
-            />
+            {item.src ? (
+              <img
+                src={item.src}
+                alt={item.alt}
+                className="w-auto h-full object-contain"
+              />
+            ) : (
+              <span className="text-gray-500">無預覽圖片</span>
+            )}
           </div>
         ))}
+
         <div className="flex flex-col justify-between mx-5">
           <div className="flex flex-col justify-center items-center h-[200px]">
             <p>完成!!</p>
@@ -35,7 +42,6 @@ const ResultDialog = ({ open, onClose, imageSrc }) => {
             下載
           </Button>
           <div className="flex gap-4 mt-4">
-            {/* IG */}
             <a
               href="https://www.instagram.com/"
               target="_blank"
@@ -43,8 +49,6 @@ const ResultDialog = ({ open, onClose, imageSrc }) => {
             >
               <FaInstagram className="text-white text-xl" />
             </a>
-
-            {/* Facebook */}
             <a
               href="https://www.facebook.com/sharer/sharer.php?u=https://your-image-or-page-url"
               target="_blank"
@@ -52,8 +56,6 @@ const ResultDialog = ({ open, onClose, imageSrc }) => {
             >
               <FaFacebookF className="text-white text-xl" />
             </a>
-
-            {/* Twitter */}
             <a
               href="https://twitter.com/intent/tweet?url=https://your-image-or-page-url&text=快來看看這張AI換臉圖！"
               target="_blank"

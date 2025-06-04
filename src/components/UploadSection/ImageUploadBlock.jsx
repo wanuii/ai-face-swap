@@ -1,4 +1,5 @@
 import { useInView } from "react-intersection-observer";
+import { useEffect, useState } from "react";
 import { Spin } from "antd";
 export default function ImageUploadBlock({
   imageSrc,
@@ -9,6 +10,19 @@ export default function ImageUploadBlock({
   const { ref, inView } = useInView({
     threshold: 0.5, // 滑到一半就觸發
   });
+  const [displayUrl, setDisplayUrl] = useState(null);
+  useEffect(() => {
+    // 處理 File 或 URL 字串
+    if (imageSrc instanceof File) {
+      const tempUrl = URL.createObjectURL(imageSrc);
+      setDisplayUrl(tempUrl);
+
+      return () => URL.revokeObjectURL(tempUrl); // 清理 URL
+    } else {
+      setDisplayUrl(imageSrc); // 原始 URL 直接用
+    }
+  }, [imageSrc]);
+
   const labelMap = {
     Portrait: "人臉選擇",
     Swap: "模板選擇",
@@ -25,11 +39,10 @@ export default function ImageUploadBlock({
           onClick={!loading ? onViewClick : undefined}
         >
           <img
-            src={imageSrc}
+            src={displayUrl}
             alt="預覽圖"
             className="card-image w-full h-full object-cover"
           />
-
           {blockType !== "Result" && (
             <div className="arrow-container">
               <div className="relative flex justify-center items-center">

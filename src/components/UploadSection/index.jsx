@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Image from "@/assets/bg_img.webp";
 import sample_1 from "@/assets/sample_1.webp";
 import sample_2 from "@/assets/sample_2.webp";
@@ -8,8 +8,11 @@ import UploadDialog from "./UploadDialog";
 import ResultDialog from "./ResultDialog";
 import { swapFaceAPI } from "@/api/swap";
 import { Toaster, toast } from "sonner";
+import { usePreviewUrl } from "@/hooks/usePreviewUrl"; // Hook 用來產生預覽網址
+import { preloadImages } from "@/utils/image";
+import { useFaceTemplate } from "@/hooks/useFaceTemplate";
 
-// 用 fetch(url) 拿到圖片，轉為 blob，再建立 File 給後端
+// 工具函式：將 URL 轉成 File
 const urlToFile = async (url, filename) => {
   const res = await fetch(url);
   const blob = await res.blob();
@@ -17,49 +20,77 @@ const urlToFile = async (url, filename) => {
 };
 
 function Index() {
-  const [isLoading, setIsLoading] = useState(false);
-  const [currentType, setCurrentType] = useState(null);
-  const requestIdRef = useRef(0);
+  const faceList = useFaceTemplate();
+  const [isLoading, setIsLoading] = useState(false); // 控制 loading 效果
+  const [currentType, setCurrentType] = useState(null); // 控制目前開啟的對話框類型
+  const requestIdRef = useRef(0); // 防止多次呼叫 API 時結果覆蓋錯誤
 
+  // Hook 處理結果圖預覽
+  const {
+    previewUrl: resultPreviewUrl,
+    handleFileSelect: setResultPreviewFile,
+    handleReset: clearResultPreview,
+  } = usePreviewUrl();
+
+  // Hook 處理原圖預覽
+  const {
+    previewUrl: swapPreviewUrl,
+    handleFileSelect: setSwapPreviewFile,
+    handleReset: clearSwapPreview,
+  } = usePreviewUrl();
+
+  // 儲存目前所有圖片（預設為 sample）
   const [uploadBlocks, setUploadBlocks] = useState({
     Portrait: sample_1,
     Swap: sample_2,
     Result: sample_3,
   });
 
-  // 換臉函式：接收兩張圖，組成 FormData 並呼叫 API
-  const runSwap = async (portraitImage, swapImage) => {
-    // 為每次換臉產生唯一 requestId，並保留這次的編號做後續比對。
+  useEffect(() => {
+    preloadImages(faceList); // ✅ 提前預載所有 template 圖片
+
+    (async () => {
+      const portraitFile = await urlToFile(sample_1, "sample_1.webp");
+      const swapFile = await urlToFile(sample_2, "sample_2.webp");
+      const resultFile = await urlToFile(sample_3, "sample_3.webp");
+
+      setUploadBlocks({
+        Portrait: portraitFile,
+        Swap: swapFile,
+        Result: resultFile,
+      });
+      // 一開始就產生原圖與結果圖的預覽網址
+      setSwapPreviewFile(swapFile);
+      setResultPreviewFile(resultFile);
+    })();
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // 呼叫換臉 API 並處理結果圖
+  const runSwap = async (portraitFile, swapFile) => {
     const thisRequestId = ++requestIdRef.current;
     setIsLoading(true);
     try {
       const formData = new FormData();
-      // 根據後端要求：file1 = 模板，file2 = 使用者照
-      formData.append("file1", await urlToFile(swapImage, "swap.jpg"));
-      formData.append("file2", await urlToFile(portraitImage, "portrait.jpg"));
+      formData.append("file1", swapFile);
+      formData.append("file2", portraitFile);
 
       const res = await swapFaceAPI(formData);
       const contentType = res.headers["content-type"];
       if (!contentType?.includes("image")) {
-        toast.error("回傳內容非圖片");
+        toast.error("辨識失敗，請嘗試其他圖片");
         return;
       }
-      // if (!res.ok) toast.error("換臉 API 回傳錯誤");
-      // // 已經有更新的請求正在處理，這筆結果作廢
-      // if (thisRequestId !== requestIdRef.current) return;
 
-      // const contentType = res.headers.get("Content-Type");
-      // if (!contentType?.includes("image")) {
-      //   const err = await res.json();
-      //   toast.error(err.error);
-      //   return;
-      // }
       const blob = new Blob([res.data], { type: contentType });
-      const outputUrl = URL.createObjectURL(blob);
-      // const blob = await res.blob();
-      // const outputUrl = URL.createObjectURL(blob);
+      const file = new File([blob], "result.jpg", { type: blob.type });
+
+      // 更新 preview hook
+      setResultPreviewFile(file);
+
       if (thisRequestId === requestIdRef.current) {
-        setUploadBlocks((prev) => ({ ...prev, Result: outputUrl }));
+        setUploadBlocks((prev) => ({ ...prev, Result: file }));
         setIsLoading(false);
       }
     } catch (err) {
@@ -67,22 +98,29 @@ function Index() {
       toast.error("換臉 API 回傳錯誤");
     }
   };
-  // 處理上傳確認邏輯，統一管理更新與換臉執行
-  const handleUploadConfirm = (imageData) => {
+
+  // 使用者在 UploadDialog 中確認上傳圖片
+  const handleUploadConfirm = (imageFile) => {
     if (!currentType) return;
 
-    const updated = { ...uploadBlocks, [currentType]: imageData };
+    const updated = { ...uploadBlocks, [currentType]: imageFile };
     setUploadBlocks(updated);
     setCurrentType(null);
 
-    const portraitImage =
-      currentType === "Portrait" ? imageData : updated.Portrait;
-    const swapImage = currentType === "Swap" ? imageData : updated.Swap;
+    // 若是原圖，就同步更新 preview
+    if (currentType === "Swap") {
+      setSwapPreviewFile(imageFile);
+    }
 
-    if (portraitImage && swapImage) {
-      runSwap(portraitImage, swapImage);
+    const portraitFile =
+      currentType === "Portrait" ? imageFile : updated.Portrait;
+    const swapFile = currentType === "Swap" ? imageFile : updated.Swap;
+
+    if (portraitFile && swapFile) {
+      runSwap(portraitFile, swapFile);
     }
   };
+
   return (
     <>
       <div
@@ -102,22 +140,27 @@ function Index() {
           ))}
         </div>
       </div>
-      {/* 上傳 Modal */}
+
       <UploadDialog
         open={currentType === "Portrait" || currentType === "Swap"}
         onClose={() => setCurrentType(null)}
         blockType={currentType}
         onConfirm={handleUploadConfirm}
       />
-      {/* 查看結果 Modal */}
+
       <ResultDialog
         open={currentType === "Result"}
-        onClose={() => setCurrentType(null)}
+        onClose={() => {
+          setCurrentType(null);
+          clearResultPreview(); // ✅ 清除結果圖預覽網址
+          clearSwapPreview(); // ✅ 清除原圖預覽網址
+        }}
         imageSrc={{
-          resultImage: uploadBlocks.Result,
-          swapImage: uploadBlocks.Swap,
+          resultImage: resultPreviewUrl, // ✅ 字串 URL，直接給 <img src>
+          swapImage: swapPreviewUrl, // ✅ 字串 URL，直接給 <img src>
         }}
       />
+
       <Toaster position="top-center" />
     </>
   );
