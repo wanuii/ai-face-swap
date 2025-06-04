@@ -1,17 +1,18 @@
-import { Modal, Upload, message, Button } from "antd";
+import { Modal, Upload, Button } from "antd";
 import { InboxOutlined } from "@ant-design/icons";
 import { useState } from "react";
 import { usePreviewUrl } from "@/hooks/usePreviewUrl";
-import { useFaceTemplate } from "@/hooks/useFaceTemplate"; // ✅ 你已經有這個！
+import { useFaceTemplate } from "@/hooks/useFaceTemplate";
+import { Toaster, toast } from "sonner";
 
 const { Dragger } = Upload;
 
 function UploadDialog({ open, onClose, onConfirm }) {
   const { previewUrl, selectedFile, handleFileSelect, handleReset } =
     usePreviewUrl();
-  const faceList = useFaceTemplate(); // ✅ 使用共用模板 hook
+  const faceList = useFaceTemplate(); // 使用共用模板 hook
 
-  const [selectedTemplateUrl, setSelectedTemplateUrl] = useState(null); // ✅ 記住被選的模板圖
+  const [selectedTemplateUrl, setSelectedTemplateUrl] = useState(null); // 記住被選的模板圖
 
   const handleClose = () => {
     handleReset();
@@ -30,7 +31,7 @@ function UploadDialog({ open, onClose, onConfirm }) {
       onConfirm(file);
       setSelectedTemplateUrl(null);
     } else {
-      message.warning("請先上傳圖片或選擇模板");
+      toast.error("請先上傳圖片或選擇模板");
     }
   };
 
@@ -41,11 +42,11 @@ function UploadDialog({ open, onClose, onConfirm }) {
     beforeUpload: (file) => {
       const isImage = file.type.startsWith("image/");
       if (!isImage) {
-        message.error("只能上傳圖片檔案");
+        toast.error("只能上傳圖片檔案");
         return false;
       }
       handleFileSelect(file);
-      setSelectedTemplateUrl(null); // ✅ 上傳後取消模板圖
+      setSelectedTemplateUrl(null); // 上傳後取消模板圖
       return false;
     },
   };
@@ -122,6 +123,7 @@ function UploadDialog({ open, onClose, onConfirm }) {
           </div>
         </div>
       </div>
+      <Toaster position="top-center" />
     </Modal>
   );
 }

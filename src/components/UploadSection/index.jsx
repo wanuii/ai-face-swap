@@ -71,6 +71,8 @@ function Index() {
   const runSwap = async (portraitFile, swapFile) => {
     const thisRequestId = ++requestIdRef.current;
     setIsLoading(true);
+    // 清掉舊的結果 preview（避免記憶體浪費 & 準備放新圖）
+    clearResultPreview();
     try {
       const formData = new FormData();
       formData.append("file1", swapFile);
@@ -102,7 +104,9 @@ function Index() {
   // 使用者在 UploadDialog 中確認上傳圖片
   const handleUploadConfirm = (imageFile) => {
     if (!currentType) return;
-
+    // 換新圖前，清除舊預覽
+    if (currentType === "Swap") clearSwapPreview();
+    if (currentType === "Portrait") clearResultPreview(); // 為了避免因圖片改變，API重新觸發，先清掉結果
     const updated = { ...uploadBlocks, [currentType]: imageFile };
     setUploadBlocks(updated);
     setCurrentType(null);
@@ -152,8 +156,6 @@ function Index() {
         open={currentType === "Result"}
         onClose={() => {
           setCurrentType(null);
-          clearResultPreview(); // ✅ 清除結果圖預覽網址
-          clearSwapPreview(); // ✅ 清除原圖預覽網址
         }}
         imageSrc={{
           resultImage: resultPreviewUrl, // ✅ 字串 URL，直接給 <img src>
