@@ -1,6 +1,6 @@
 import { Modal, Button } from "antd";
-import { FaInstagram, FaFacebookF, FaTwitter } from "react-icons/fa";
 import { downloadImage } from "@/utils/downloadImage";
+import ShareButtons from "@/components/ShareButtons";
 const ResultDialog = ({ open, onClose, imageSrc }) => {
   const imageList = [
     { src: imageSrc.swapImage.url, alt: "原圖" },
@@ -59,27 +59,11 @@ const ResultDialog = ({ open, onClose, imageSrc }) => {
             下載
           </Button>
           <div className="flex gap-4 mt-4">
-            <a
-              href="https://www.instagram.com/"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <FaInstagram className="text-white text-xl" />
-            </a>
-            <a
-              href="https://www.facebook.com/sharer/sharer.php?u=https://your-image-or-page-url"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <FaFacebookF className="text-white text-xl" />
-            </a>
-            <a
-              href="https://twitter.com/intent/tweet?url=https://your-image-or-page-url&text=快來看看這張AI換臉圖！"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <FaTwitter className="text-white text-xl" />
-            </a>
+            <ShareButtons
+              color="text-white"
+              url="https://your-image-or-page-url"
+              message="快來看看這張AI換臉圖！"
+            />
           </div>
         </div>
       </div>

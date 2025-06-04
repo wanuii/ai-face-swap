@@ -1,5 +1,5 @@
 import titleImage from "@/assets/title_page.webp";
-import { FaInstagram, FaFacebookF, FaTwitter } from "react-icons/fa";
+import ShareButtons from "./ShareButtons";
 function TitlePage() {
   return (
     <div className="relative h-screen w-full overflow-hidden">
@@ -44,33 +44,12 @@ function TitlePage() {
         >
           START
         </button>
-        <div className="flex gap-5 mt-4">
-          {/* IG */}
-          <a
-            href="https://www.instagram.com/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <FaInstagram className="text-black text-xl" />
-          </a>
-
-          {/* Facebook */}
-          <a
-            href="https://www.facebook.com/sharer/sharer.php?u=https://你的網站.com"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <FaFacebookF className="text-black text-xl" />
-          </a>
-
-          {/* Twitter */}
-          <a
-            href="https://twitter.com/intent/tweet?url=https://你的網站.com&text=體驗AI換臉！超有趣！"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <FaTwitter className="text-black text-xl" />
-          </a>
+        <div className="flex gap-5 mt-3">
+          <ShareButtons
+            color="text-black"
+            url="https://你的網站.com"
+            message="體驗AI換臉！超有趣！"
+          />
         </div>
       </div>
     </div>
