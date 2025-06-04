@@ -1,11 +1,24 @@
 import { Modal, Button } from "antd";
 import { FaInstagram, FaFacebookF, FaTwitter } from "react-icons/fa";
-
+import { downloadImage } from "@/utils/downloadImage";
 const ResultDialog = ({ open, onClose, imageSrc }) => {
   const imageList = [
-    { src: imageSrc.swapImage, alt: "原圖" },
-    { src: imageSrc.resultImage, alt: "結果圖片" },
+    { src: imageSrc.swapImage.url, alt: "原圖" },
+    { src: imageSrc.resultImage.url, alt: "結果圖片" },
   ];
+
+  const handleDownload = async () => {
+    if (!imageSrc.resultImage?.file) return;
+
+    const fileWithWatermark = await downloadImage(imageSrc.resultImage.file);
+    const url = URL.createObjectURL(fileWithWatermark);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "face_swap_result.jpg";
+    link.click();
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <Modal
@@ -38,7 +51,11 @@ const ResultDialog = ({ open, onClose, imageSrc }) => {
             <p>完成!!</p>
             <p>AI 換臉</p>
           </div>
-          <Button type="primary" className="h-11 w-24 rounded-full">
+          <Button
+            type="primary"
+            className="h-11 w-24 rounded-full"
+            onClick={handleDownload}
+          >
             下載
           </Button>
           <div className="flex gap-4 mt-4">

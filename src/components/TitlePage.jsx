@@ -23,7 +23,7 @@ function TitlePage() {
         </div>
       </div>
       <div className="flex flex-col justify-center items-center h-full w-full md:w-[70%]">
-        <p className="text-base font-bold">FUBORE AI FACE SWAP</p>
+        <p className="text-base font-bold">AI FACE SWAP</p>
         <h1 className="font-biaukai text-6xl mt-6">
           <span className="font-playfair">AI</span> 換臉
         </h1>

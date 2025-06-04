@@ -3,7 +3,7 @@ import { InboxOutlined } from "@ant-design/icons";
 import { useState } from "react";
 import { usePreviewUrl } from "@/hooks/usePreviewUrl";
 import { useFaceTemplate } from "@/hooks/useFaceTemplate";
-import { Toaster, toast } from "sonner";
+import { toast } from "sonner";
 
 const { Dragger } = Upload;
 
@@ -123,7 +123,6 @@ function UploadDialog({ open, onClose, onConfirm }) {
           </div>
         </div>
       </div>
-      <Toaster position="top-center" />
     </Modal>
   );
 }

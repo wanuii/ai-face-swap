@@ -7,7 +7,7 @@ import ImageUploadBlock from "./ImageUploadBlock";
 import UploadDialog from "./UploadDialog";
 import ResultDialog from "./ResultDialog";
 import { swapFaceAPI } from "@/api/swap";
-import { Toaster, toast } from "sonner";
+import { toast } from "sonner";
 import { usePreviewUrl } from "@/hooks/usePreviewUrl"; // Hook 用來產生預覽網址
 import { preloadImages } from "@/utils/image";
 import { useFaceTemplate } from "@/hooks/useFaceTemplate";
@@ -28,6 +28,7 @@ function Index() {
   // Hook 處理結果圖預覽
   const {
     previewUrl: resultPreviewUrl,
+    selectedFile: resultFile, // 取得實際的 File
     handleFileSelect: setResultPreviewFile,
     handleReset: clearResultPreview,
   } = usePreviewUrl();
@@ -158,12 +159,15 @@ function Index() {
           setCurrentType(null);
         }}
         imageSrc={{
-          resultImage: resultPreviewUrl, // ✅ 字串 URL，直接給 <img src>
-          swapImage: swapPreviewUrl, // ✅ 字串 URL，直接給 <img src>
+          resultImage: {
+            file: resultFile, // 原始 File
+            url: resultPreviewUrl, // 預覽網址
+          },
+          swapImage: {
+            url: swapPreviewUrl,
+          },
         }}
       />
-
-      <Toaster position="top-center" />
     </>
   );
 }
