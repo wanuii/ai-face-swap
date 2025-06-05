@@ -1,13 +1,13 @@
 import { Modal, Upload, Button } from "antd";
 import { InboxOutlined } from "@ant-design/icons";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { usePreviewUrl } from "@/hooks/usePreviewUrl";
 import { useFaceTemplate } from "@/hooks/useFaceTemplate";
 import { toast } from "sonner";
 
 const { Dragger } = Upload;
-
 function UploadDialog({ open, onClose, onConfirm }) {
+  const confirmLockRef = useRef(false); // 是否正在處理中
   const { previewUrl, selectedFile, handleFileSelect, handleReset } =
     usePreviewUrl();
   const faceList = useFaceTemplate(); // 使用共用模板 hook
@@ -20,18 +20,28 @@ function UploadDialog({ open, onClose, onConfirm }) {
     onClose();
   };
 
-  const handleConfirm = async () => {
-    if (selectedFile) {
-      onConfirm(selectedFile);
-      handleReset();
-    } else if (selectedTemplateUrl) {
-      const response = await fetch(selectedTemplateUrl);
-      const blob = await response.blob();
-      const file = new File([blob], "template.jpg", { type: blob.type });
-      onConfirm(file);
-      setSelectedTemplateUrl(null);
-    } else {
-      toast.error("請先上傳圖片或選擇模板");
+  const handleConfirm = () => {
+    if (confirmLockRef.current) return; // 阻止重複點擊
+    confirmLockRef.current = true;
+    try {
+      if (selectedFile) {
+        onConfirm(selectedFile); // ✅ 執行換圖
+        handleReset(); // ✅ 關 Dialog
+      } else if (selectedTemplateUrl) {
+        fetch(selectedTemplateUrl)
+          .then((res) => res.blob())
+          .then((blob) => {
+            const file = new File([blob], "template.jpg", { type: blob.type });
+            onConfirm(file);
+            setSelectedTemplateUrl(null);
+          });
+      } else {
+        toast.error("請先上傳圖片或選擇模板");
+      }
+    } finally {
+      setTimeout(() => {
+        confirmLockRef.current = false; // 解鎖（過 1 秒才可再次點擊）
+      }, 1000);
     }
   };
 

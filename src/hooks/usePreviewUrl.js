@@ -1,5 +1,7 @@
 // 用途：將 File 物件轉換為圖片預覽網址（Object URL）
-// 功能：提供 previewUrl 給 <img src="..."> 使用，當 File 變動時自動生成新的網址，並自動釋放舊的網址以節省記憶體。
+// 功能：提供 previewUrl 給 <img src="..."> 使用，當 File 變動時手動觸發生成新的網址，並自動釋放舊的網址以節省記憶體。
+// 適合用於使用者主動選擇檔案（如 <input type="file">）後再進行處理的情境。
+
 import { useEffect, useState } from "react";
 
 export function usePreviewUrl(initialFile = null) {

@@ -1,25 +1,25 @@
 import { Modal, Button } from "antd";
 import { downloadImage } from "@/utils/downloadImage";
+import { useAutoPreviewUrl } from "@/hooks/useAutoPreviewUrl"; // ✅ 新增這行
 import ShareButtons from "@/components/ShareButtons";
+
 const ResultDialog = ({ open, onClose, imageSrc }) => {
+  const swapPreview = useAutoPreviewUrl(imageSrc?.swapImage);
+  const resultPreview = useAutoPreviewUrl(imageSrc?.resultImage);
   const imageList = [
-    { src: imageSrc.swapImage.url, alt: "原圖" },
-    { src: imageSrc.resultImage.url, alt: "結果圖片" },
+    { src: swapPreview?.previewUrl ?? null, alt: "原圖" },
+    { src: resultPreview?.previewUrl ?? null, alt: "結果圖片" },
   ];
-
   const handleDownload = async () => {
-    if (!imageSrc.resultImage?.file) return;
-
-    const fileWithWatermark = await downloadImage(imageSrc.resultImage.file);
-    const url = URL.createObjectURL(fileWithWatermark);
-
+    if (!resultPreview?.file) return;
+    const watermarked = await downloadImage(resultPreview.file);
+    const url = URL.createObjectURL(watermarked);
     const link = document.createElement("a");
     link.href = url;
     link.download = "face_swap_result.jpg";
     link.click();
     URL.revokeObjectURL(url);
   };
-
   return (
     <Modal
       open={open}

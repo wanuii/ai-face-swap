@@ -21,6 +21,17 @@ const urlToFile = async (url, filename) => {
 
 function Index() {
   const faceList = useFaceTemplate();
+  // 所有模板圖片載入一次，等使用者開啟 UploadDialog 時，不用再重載圖片
+  useEffect(() => {
+    const preload = (url) => {
+      if (!url) return; // 防止 undefined 被 preload
+      const img = new window.Image();
+      img.src = url;
+    };
+
+    faceList.forEach((item) => preload(item.url));
+  }, [faceList]);
+
   const [isLoading, setIsLoading] = useState(false); // 控制 loading 效果
   const [currentType, setCurrentType] = useState(null); // 控制目前開啟的對話框類型
   const requestIdRef = useRef(0); // 防止多次呼叫 API 時結果覆蓋錯誤
@@ -46,10 +57,9 @@ function Index() {
     Swap: sample_2,
     Result: sample_3,
   });
-
   useEffect(() => {
-    preloadImages(faceList); // ✅ 提前預載所有 template 圖片
-
+    preloadImages(faceList); // 預先載入所有模板圖片
+    // 載入初始三張圖片並建立 preview
     (async () => {
       const portraitFile = await urlToFile(sample_1, "sample_1.webp");
       const swapFile = await urlToFile(sample_2, "sample_2.webp");
@@ -67,6 +77,16 @@ function Index() {
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+  // 在換臉超過一定時間時提示
+  useEffect(() => {
+    let timeoutId;
+    if (isLoading) {
+      timeoutId = setTimeout(() => {
+        toast.warning("處理時間過長，建議更換圖片或重新整理");
+      }, 60000); // 60 秒提示
+    }
+    return () => clearTimeout(timeoutId);
+  }, [isLoading]);
 
   // 呼叫換臉 API 並處理結果圖
   const runSwap = async (portraitFile, swapFile) => {
@@ -90,11 +110,11 @@ function Index() {
       const file = new File([blob], "result.jpg", { type: blob.type });
 
       // 更新 preview hook
-      setResultPreviewFile(file);
-
+      await setResultPreviewFile(file); // ✅ 等 preview 設定好
       if (thisRequestId === requestIdRef.current) {
         setUploadBlocks((prev) => ({ ...prev, Result: file }));
-        setIsLoading(false);
+        setIsLoading(false); // 圖片載入完成才結束 loading
+        toast.success("換臉完成！");
       }
     } catch (err) {
       console.error("換臉失敗", err);
@@ -103,26 +123,28 @@ function Index() {
   };
 
   // 使用者在 UploadDialog 中確認上傳圖片
-  const handleUploadConfirm = (imageFile) => {
-    if (!currentType) return;
+  const handleUploadConfirm = async (imageFile) => {
+    const type = currentType; // ✅ 先保存
+    setCurrentType(null); // ✅ 馬上關 Dialog
+
+    if (!type) return;
     // 換新圖前，清除舊預覽
-    if (currentType === "Swap") clearSwapPreview();
-    if (currentType === "Portrait") clearResultPreview(); // 為了避免因圖片改變，API重新觸發，先清掉結果
-    const updated = { ...uploadBlocks, [currentType]: imageFile };
+    if (type === "Swap") clearSwapPreview();
+    if (type === "Portrait") clearResultPreview(); // 為了避免因圖片改變，API重新觸發，先清掉結果
+    const updated = { ...uploadBlocks, [type]: imageFile };
     setUploadBlocks(updated);
     setCurrentType(null);
 
     // 若是原圖，就同步更新 preview
-    if (currentType === "Swap") {
+    if (type === "Swap") {
       setSwapPreviewFile(imageFile);
     }
 
-    const portraitFile =
-      currentType === "Portrait" ? imageFile : updated.Portrait;
-    const swapFile = currentType === "Swap" ? imageFile : updated.Swap;
+    const portraitFile = type === "Portrait" ? imageFile : updated.Portrait;
+    const swapFile = type === "Swap" ? imageFile : updated.Swap;
 
     if (portraitFile && swapFile) {
-      runSwap(portraitFile, swapFile);
+      await runSwap(portraitFile, swapFile);
     }
   };
 
@@ -152,20 +174,12 @@ function Index() {
         blockType={currentType}
         onConfirm={handleUploadConfirm}
       />
-
       <ResultDialog
         open={currentType === "Result"}
-        onClose={() => {
-          setCurrentType(null);
-        }}
+        onClose={() => setCurrentType(null)}
         imageSrc={{
-          resultImage: {
-            file: resultFile, // 原始 File
-            url: resultPreviewUrl, // 預覽網址
-          },
-          swapImage: {
-            url: swapPreviewUrl,
-          },
+          resultImage: resultFile, // File 物件
+          swapImage: swapPreviewUrl, // 字串 URL
         }}
       />
     </>
