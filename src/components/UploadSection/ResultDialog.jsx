@@ -59,11 +59,7 @@ const ResultDialog = ({ open, onClose, imageSrc }) => {
             下載
           </Button>
           <div className="flex gap-4 mt-4">
-            <ShareButtons
-              color="text-white"
-              url="https://your-image-or-page-url"
-              message="快來看看這張AI換臉圖！"
-            />
+            <ShareButtons color="text-white" message="快來看看這張AI換臉圖！" />
           </div>
         </div>
       </div>

@@ -1,6 +1,8 @@
 import { FaInstagram, FaFacebookF, FaTwitter } from "react-icons/fa";
+const FIXED_URL = "https://ai-face-swap-ebon.vercel.app/";
+const DEFAULT_MESSAGE = "快來試試這個 AI 換臉神器！";
 
-const SocialShare = ({ color = "text-black", url, message }) => {
+const SocialShare = ({ color = "text-black" }) => {
   return (
     <div className="flex gap-4 mt-4">
       {/* IG */}
@@ -15,7 +17,7 @@ const SocialShare = ({ color = "text-black", url, message }) => {
       {/* Facebook */}
       <a
         href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
-          url
+          FIXED_URL
         )}`}
         target="_blank"
         rel="noopener noreferrer"
@@ -26,8 +28,8 @@ const SocialShare = ({ color = "text-black", url, message }) => {
       {/* Twitter */}
       <a
         href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(
-          url
-        )}&text=${encodeURIComponent(message)}`}
+          FIXED_URL
+        )}&text=${encodeURIComponent(DEFAULT_MESSAGE)}`}
         target="_blank"
         rel="noopener noreferrer"
       >

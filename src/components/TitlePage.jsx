@@ -45,11 +45,7 @@ function TitlePage() {
           START
         </button>
         <div className="flex gap-5 mt-3">
-          <ShareButtons
-            color="text-black"
-            url="https://你的網站.com"
-            message="體驗AI換臉！超有趣！"
-          />
+          <ShareButtons color="text-black" message="體驗AI換臉！超有趣！" />
         </div>
       </div>
     </div>
