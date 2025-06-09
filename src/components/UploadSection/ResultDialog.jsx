@@ -1,7 +1,8 @@
 import { Modal, Button } from "antd";
 import { downloadImage } from "@/utils/downloadImage";
-import { useAutoPreviewUrl } from "@/hooks/useAutoPreviewUrl"; // ✅ 新增這行
+import { useAutoPreviewUrl } from "@/hooks/useAutoPreviewUrl";
 import ShareButtons from "@/components/ShareButtons";
+import { toast } from "sonner";
 
 const ResultDialog = ({ open, onClose, imageSrc }) => {
   const swapPreview = useAutoPreviewUrl(imageSrc?.swapImage);
@@ -12,14 +13,34 @@ const ResultDialog = ({ open, onClose, imageSrc }) => {
   ];
   const handleDownload = async () => {
     if (!resultPreview?.file) return;
-    const watermarked = await downloadImage(resultPreview.file);
-    const url = URL.createObjectURL(watermarked);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "face_swap_result.jpg";
-    link.click();
-    URL.revokeObjectURL(url);
+
+    try {
+      const watermarked = await downloadImage(resultPreview.file);
+      const url = URL.createObjectURL(watermarked);
+
+      // 嘗試使用 a.download 下載
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "AI_Face_Swap.jpg";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      // 撤銷 Blob URL
+      setTimeout(() => {
+        URL.revokeObjectURL(url);
+      }, 1000);
+    } catch (error) {
+      console.error("下載失敗，嘗試打開新視窗作為備案", error);
+      // fallback：打開新頁面讓使用者長按另存圖片
+      const fallbackUrl = URL.createObjectURL(resultPreview.file);
+      window.open(fallbackUrl, "_blank");
+      toast.info(
+        "⚠️ 您的瀏覽器不支援自動下載，請在新頁面長按圖片並選擇「儲存圖片」。"
+      );
+    }
   };
+
   return (
     <Modal
       open={open}
