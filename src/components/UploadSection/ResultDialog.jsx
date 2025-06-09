@@ -48,6 +48,7 @@ const ResultDialog = ({ open, onClose, imageSrc }) => {
       footer={null}
       width={730}
       className="custom-result-modal"
+      centered
     >
       <div className="flex flex-col justify-center items-center sm:flex-row gap-5 my-8">
         {imageList.map((item, index) => (
