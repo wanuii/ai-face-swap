@@ -1,7 +1,7 @@
+import { Spin } from "antd";
 import { useInView } from "react-intersection-observer";
 import { useLoadingTimer } from "@/hooks/useLoadingTimer";
 import { useAutoPreviewUrl } from "@/hooks/useAutoPreviewUrl";
-import { Spin } from "antd";
 
 function ImageUploadBlock({
   imageSrc,

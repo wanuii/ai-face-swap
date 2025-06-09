@@ -1,9 +1,9 @@
+import { useState, useRef } from "react";
+import { toast } from "sonner";
 import { Modal, Upload, Button } from "antd";
 import { InboxOutlined } from "@ant-design/icons";
-import { useState, useRef } from "react";
 import { usePreviewUrl } from "@/hooks/usePreviewUrl";
 import { useFaceTemplate } from "@/hooks/useFaceTemplate";
-import { toast } from "sonner";
 
 const { Dragger } = Upload;
 function UploadDialog({ open, onClose, onConfirm }) {
@@ -25,12 +25,17 @@ function UploadDialog({ open, onClose, onConfirm }) {
     confirmLockRef.current = true;
     try {
       if (selectedFile) {
-        onConfirm(selectedFile); // ✅ 執行換圖
-        handleReset(); // ✅ 關 Dialog
+        // 使用者「上傳圖片」
+        onConfirm(selectedFile); // 傳 File 給 Index
+        handleReset(); // 清掉預覽並關閉 Dialog
       } else if (selectedTemplateUrl) {
+        // 使用者選擇模板圖片
+        // selectedTemplateUrl 是圖片的 URL 字串（例如 https://images.pexels.com/photo.jpg）
         fetch(selectedTemplateUrl)
+          // 用 fetch(url) 取得圖片的 blob 資料
           .then((res) => res.blob())
           .then((blob) => {
+            // 再用 new File([blob], ...) 包成一個合法的 File 物件
             const file = new File([blob], "template.jpg", { type: blob.type });
             onConfirm(file);
             setSelectedTemplateUrl(null);
@@ -46,18 +51,18 @@ function UploadDialog({ open, onClose, onConfirm }) {
   };
 
   const draggerProps = {
-    name: "file",
-    multiple: false,
-    showUploadList: false,
+    name: "file", // 表單欄位名
+    multiple: false, // 禁止多選
+    showUploadList: false, // 不顯示上傳列表
     beforeUpload: (file) => {
       const isImage = file.type.startsWith("image/");
       if (!isImage) {
         toast.error("只能上傳圖片檔案");
-        return false;
+        return false; // 阻止自動上傳
       }
-      handleFileSelect(file);
+      handleFileSelect(file); // 自行處理 file 存取與預覽
       setSelectedTemplateUrl(null); // 上傳後取消模板圖
-      return false;
+      return false; // 阻止內建自動上傳行為（改用自訂邏輯）
     },
   };
 
@@ -120,13 +125,13 @@ function UploadDialog({ open, onClose, onConfirm }) {
           <p className="text-xl">選擇模板</p>
           <div className="w-full bg-slate-100 rounded-md mt-5 p-2">
             <p>模板圖片來自 Pexels ，僅供測試</p>
-            <div className="grid grid-cols-3 sm:grid-cols-4 p-1 place-items-center gap-2 mt-2 max-h-[270px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200">
+            <div className="template-grid">
               {faceList.map((img, i) => (
                 <img
                   key={i}
                   src={img}
                   alt={`face-${i}`}
-                  className={`w-[85px] h-[85px] object-cover rounded-sm cursor-pointer hover:scale-105 transition ${
+                  className={`template-image ${
                     selectedTemplateUrl === img ? "ring-2 ring-blue-500" : ""
                   }`}
                   onClick={() => {

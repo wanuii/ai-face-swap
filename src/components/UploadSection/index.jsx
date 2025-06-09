@@ -1,16 +1,16 @@
 import { useState, useRef, useEffect } from "react";
+import { toast } from "sonner";
 import Image from "@/assets/bg_img.webp";
 import sample_1 from "@/assets/sample_1.webp";
 import sample_2 from "@/assets/sample_2.webp";
 import sample_3 from "@/assets/sample_3.webp";
+import { swapFaceAPI } from "@/api/swap";
+import { usePreviewUrl } from "@/hooks/usePreviewUrl"; // Hook 用來產生預覽網址
+import { useFaceTemplate } from "@/hooks/useFaceTemplate";
+import { preloadImages } from "@/utils/image";
 import ImageUploadBlock from "./ImageUploadBlock";
 import UploadDialog from "./UploadDialog";
 import ResultDialog from "./ResultDialog";
-import { swapFaceAPI } from "@/api/swap";
-import { toast } from "sonner";
-import { usePreviewUrl } from "@/hooks/usePreviewUrl"; // Hook 用來產生預覽網址
-import { preloadImages } from "@/utils/image";
-import { useFaceTemplate } from "@/hooks/useFaceTemplate";
 
 // 工具函式：將 URL 轉成 File
 const urlToFile = async (url, filename) => {
@@ -20,25 +20,13 @@ const urlToFile = async (url, filename) => {
 };
 
 function Index() {
-  const faceList = useFaceTemplate();
-  // 所有模板圖片載入一次，等使用者開啟 UploadDialog 時，不用再重載圖片
-  useEffect(() => {
-    const preload = (url) => {
-      if (!url) return; // 防止 undefined 被 preload
-      const img = new window.Image();
-      img.src = url;
-    };
-
-    faceList.forEach((item) => preload(item.url));
-  }, [faceList]);
-
   const [isLoading, setIsLoading] = useState(false); // 控制 loading 效果
   const [currentType, setCurrentType] = useState(null); // 控制目前開啟的對話框類型
   const requestIdRef = useRef(0); // 防止多次呼叫 API 時結果覆蓋錯誤
 
   // Hook 處理結果圖預覽
   const {
-    previewUrl: resultPreviewUrl,
+    // previewUrl: resultPreviewUrl,
     selectedFile: resultFile, // 取得實際的 File
     handleFileSelect: setResultPreviewFile,
     handleReset: clearResultPreview,
@@ -57,6 +45,21 @@ function Index() {
     Swap: sample_2,
     Result: sample_3,
   });
+
+  const faceList = useFaceTemplate();
+  // 所有模板圖片載入一次，等使用者開啟 UploadDialog 時，不用再重載圖片
+  useEffect(() => {
+    const preload = (url) => {
+      // 防止 undefined 被 preload
+      if (!url) return;
+      // 手動建立圖片元素，但不插入到 DOM 中
+      const img = new window.Image();
+      img.src = url;
+    };
+    // 事先讓瀏覽器載入一次每張模板圖 ➜ 瀏覽器會把它快取下來
+    faceList.forEach((item) => preload(item.url));
+  }, [faceList]);
+
   useEffect(() => {
     preloadImages(faceList); // 預先載入所有模板圖片
     // 載入初始三張圖片並建立 preview
@@ -124,19 +127,21 @@ function Index() {
 
   // 使用者在 UploadDialog 中確認上傳圖片
   const handleUploadConfirm = async (imageFile) => {
-    const type = currentType; // ✅ 先保存
-    setCurrentType(null); // ✅ 馬上關 Dialog
+    const type = currentType; // 先保存 Dialog 類型
+    setCurrentType(null); // 關閉 Dialog
 
     if (!type) return;
     // 換新圖前，清除舊預覽
     if (type === "Swap") clearSwapPreview();
-    if (type === "Portrait") clearResultPreview(); // 為了避免因圖片改變，API重新觸發，先清掉結果
+    // 為了避免因圖片改變，API重新觸發，先清掉結果
+    if (type === "Portrait") clearResultPreview();
+    // 把剛剛上傳的圖檔 imageFile 更新進 uploadBlocks 內對應位置
     const updated = { ...uploadBlocks, [type]: imageFile };
+    // 使用 props 把更新圖片傳給 ImageUploadBlock ，達成畫面同步更新
     setUploadBlocks(updated);
-    setCurrentType(null);
-
     // 若是原圖，就同步更新 preview
     if (type === "Swap") {
+      // 原圖會顯示在結果頁，需要呼叫 usePreviewUrl 中的 handleFileSelect 來產生 preview
       setSwapPreviewFile(imageFile);
     }
 
@@ -171,7 +176,6 @@ function Index() {
       <UploadDialog
         open={currentType === "Portrait" || currentType === "Swap"}
         onClose={() => setCurrentType(null)}
-        blockType={currentType}
         onConfirm={handleUploadConfirm}
       />
       <ResultDialog

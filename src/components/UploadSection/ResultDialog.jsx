@@ -1,8 +1,8 @@
-import { Modal, Button } from "antd";
-import { downloadImage } from "@/utils/downloadImage";
-import { useAutoPreviewUrl } from "@/hooks/useAutoPreviewUrl";
-import ShareButtons from "@/components/ShareButtons";
 import { toast } from "sonner";
+import { Modal, Button } from "antd";
+import { useAutoPreviewUrl } from "@/hooks/useAutoPreviewUrl";
+import { downloadImage } from "@/utils/downloadImage";
+import ShareButtons from "@/components/ShareButtons";
 
 const ResultDialog = ({ open, onClose, imageSrc }) => {
   const swapPreview = useAutoPreviewUrl(imageSrc?.swapImage);

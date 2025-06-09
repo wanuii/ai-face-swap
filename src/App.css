@@ -163,6 +163,20 @@ html, body {
 }
 
 /* ------------- ------------- ------------- */
+/* ------------- UploadDialog ------------- */
+.template-grid {
+  @apply grid grid-cols-3 p-1 place-items-center gap-2 mt-2 max-h-[270px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200;
+}
+
+@media (min-width: 640px) {
+  .template-grid {
+    @apply grid-cols-4;
+  }
+}
+.template-image {
+  @apply w-[85px] h-[85px] object-cover rounded-sm cursor-pointer hover:scale-105 transition;
+}
+/* ------------- ------------- ------------- */
 /* ------------- ResultDialog ------------- */
 .custom-result-modal .ant-modal-content {
   background-color: #dfd8d8;
