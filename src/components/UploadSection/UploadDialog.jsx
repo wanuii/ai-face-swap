@@ -62,7 +62,13 @@ function UploadDialog({ open, onClose, onConfirm }) {
   };
 
   return (
-    <Modal open={open} onCancel={handleClose} footer={null} width={700}>
+    <Modal
+      open={open}
+      onCancel={handleClose}
+      footer={null}
+      width={800}
+      centered
+    >
       <div className="flex sm:flex-row flex-col">
         {/* 左：預覽區 */}
         <div className="sm:w-1/2 flex flex-col items-center gap-5">
@@ -114,7 +120,7 @@ function UploadDialog({ open, onClose, onConfirm }) {
           <p className="text-xl">選擇模板</p>
           <div className="w-full bg-slate-100 rounded-md mt-5 p-2">
             <p>模板圖片來自 Pexels ，僅供測試</p>
-            <div className="flex flex-wrap gap-2 p-1 mt-2 max-h-[270px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200">
+            <div className="grid grid-cols-3 sm:grid-cols-4 p-1 place-items-center gap-2 mt-2 max-h-[270px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200">
               {faceList.map((img, i) => (
                 <img
                   key={i}
