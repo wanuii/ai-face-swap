@@ -1,24 +1,39 @@
+import { useEffect, useState } from "react";
 import titleImage from "@/assets/title_page.webp";
 import ShareButtons from "./ShareButtons";
 function TitlePage() {
+  const [bgLoaded, setBgLoaded] = useState(false);
+
+  useEffect(() => {
+    const img = new Image();
+    img.src = titleImage;
+    img.onload = () => setBgLoaded(true);
+  }, []);
+
   return (
     <div className="relative h-screen w-full overflow-hidden">
       {/* 手機版背景圖（小螢幕才顯示） */}
       <div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat lg:hidden -z-10"
+        className={`absolute inset-0 bg-cover bg-center bg-no-repeat lg:hidden -z-10 ${
+          bgLoaded ? "opacity-100" : "opacity-0"
+        } transition-opacity duration-500`}
         style={{ backgroundImage: `url(${titleImage})` }}
       />
       {/* 桌機版模糊背景 + 清晰人像（大螢幕才顯示） */}
       <div className="hidden lg:block absolute inset-0 -z-20">
         <div
-          className="absolute inset-0 bg-cover bg-center blur-md scale-110"
+          className={`absolute inset-0 bg-cover bg-center blur-md scale-110 ${
+            bgLoaded ? "opacity-100" : "opacity-0"
+          } transition-opacity duration-500`}
           style={{ backgroundImage: `url(${titleImage})` }}
         />
         <div className="absolute inset-0 flex justify-center items-center">
           <img
             src={titleImage}
             alt="人像"
-            className="object-contain max-h-[90%]"
+            className={`object-contain max-h-[90%] ${
+              bgLoaded ? "opacity-100" : "opacity-0"
+            } transition-opacity duration-500`}
           />
         </div>
       </div>
