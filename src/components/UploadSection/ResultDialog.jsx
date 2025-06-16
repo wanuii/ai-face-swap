@@ -1,5 +1,5 @@
 import { toast } from "sonner";
-import { Modal, Button } from "antd";
+import { Modal, Button, Spin } from "antd";
 import { useAutoPreviewUrl } from "@/hooks/useAutoPreviewUrl";
 import { downloadImage } from "@/utils/downloadImage";
 import ShareButtons from "@/components/ShareButtons";
@@ -11,6 +11,8 @@ const ResultDialog = ({ open, onClose, imageSrc }) => {
     { src: swapPreview?.previewUrl ?? null, alt: "原圖" },
     { src: resultPreview?.previewUrl ?? null, alt: "結果圖片" },
   ];
+  const allImagesReady = imageList.every((img) => !!img.src);
+
   const handleDownload = async () => {
     if (!resultPreview?.file) return;
 
@@ -50,41 +52,46 @@ const ResultDialog = ({ open, onClose, imageSrc }) => {
       className="custom-result-modal"
       centered
     >
-      <div className="flex flex-col justify-center items-center sm:flex-row gap-5 my-8">
-        {imageList.map((item, index) => (
-          <div
-            key={index}
-            className="w-[250px] h-[250px] flex items-center justify-center border-4 border-white"
-          >
-            {item.src ? (
-              <img
-                src={item.src}
-                alt={item.alt}
-                className="w-auto h-full object-contain"
-              />
-            ) : (
-              <span className="text-gray-500">無預覽圖片</span>
-            )}
-          </div>
-        ))}
+      <Spin spinning={!allImagesReady} tip="圖片載入中...">
+        <div className="flex flex-col justify-center items-center sm:flex-row gap-5 my-8">
+          {imageList.map((item, index) => (
+            <div
+              key={index}
+              className="w-[250px] h-[250px] flex items-center justify-center border-4 border-white"
+            >
+              {item.src ? (
+                <img
+                  src={item.src}
+                  alt={item.alt}
+                  className="w-auto h-full object-contain"
+                />
+              ) : (
+                <span className="text-gray-500">無預覽圖片</span>
+              )}
+            </div>
+          ))}
 
-        <div className="flex flex-col justify-between mx-5">
-          <div className="flex flex-col justify-center items-center h-[200px]">
-            <p>完成!!</p>
-            <p>AI 換臉</p>
-          </div>
-          <Button
-            type="primary"
-            className="h-11 w-24 rounded-full"
-            onClick={handleDownload}
-          >
-            下載
-          </Button>
-          <div className="flex gap-4 mt-4">
-            <ShareButtons color="text-white" message="快來看看這張AI換臉圖！" />
+          <div className="flex flex-col justify-between mx-5">
+            <div className="flex flex-col justify-center items-center h-[200px]">
+              <p>完成!!</p>
+              <p>AI 換臉</p>
+            </div>
+            <Button
+              type="primary"
+              className="h-11 w-24 rounded-full"
+              onClick={handleDownload}
+            >
+              下載
+            </Button>
+            <div className="flex gap-4 mt-4">
+              <ShareButtons
+                color="text-white"
+                message="快來看看這張AI換臉圖！"
+              />
+            </div>
           </div>
         </div>
-      </div>
+      </Spin>
     </Modal>
   );
 };
