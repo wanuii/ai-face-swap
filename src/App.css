@@ -59,7 +59,7 @@ html, body {
   bottom: -0.3em;
   width: 140%; /* 底線長度 */
   height: 0.5em;
-  background-image: url("src/assets/crayon-underline.webp");
+  background-image: var(--crayon-img);
   background-repeat: repeat-x; /* 背景橫向重複 */
   background-size: cover; /* 讓背景圖撐滿設定的寬高 */
   z-index: -1;

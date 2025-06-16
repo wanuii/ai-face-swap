@@ -93,6 +93,7 @@ function Index() {
 
   // 呼叫換臉 API 並處理結果圖
   const runSwap = async (portraitFile, swapFile) => {
+    // 用 thisRequestId 來追蹤這筆請求是不是最新的那一筆
     const thisRequestId = ++requestIdRef.current;
     setIsLoading(true);
     // 清掉舊的結果 preview（避免記憶體浪費 & 準備放新圖）
@@ -108,12 +109,14 @@ function Index() {
         toast.error("辨識失敗，請嘗試其他圖片");
         return;
       }
-
+      // 從 API 回傳的 res.data 是 Blob 格式
+      // 用 new Blob([...]) 封裝，再轉成 File（這樣方便統一管理格式）
       const blob = new Blob([res.data], { type: contentType });
       const file = new File([blob], "result.jpg", { type: blob.type });
 
       // 更新 preview hook
-      await setResultPreviewFile(file); // ✅ 等 preview 設定好
+      // 傳入自訂的 usePreviewUrl() 裡的 setResultPreviewFile() → 建立預覽網址顯示在 UI
+      await setResultPreviewFile(file);
       if (thisRequestId === requestIdRef.current) {
         setUploadBlocks((prev) => ({ ...prev, Result: file }));
         setIsLoading(false); // 圖片載入完成才結束 loading
@@ -127,6 +130,7 @@ function Index() {
 
   // 使用者在 UploadDialog 中確認上傳圖片
   const handleUploadConfirm = async (imageFile) => {
+    // imageFile 是 File 類型
     const type = currentType; // 先保存 Dialog 類型
     setCurrentType(null); // 關閉 Dialog
 
@@ -137,9 +141,8 @@ function Index() {
     if (type === "Portrait") clearResultPreview();
     // 把剛剛上傳的圖檔 imageFile 更新進 uploadBlocks 內對應位置
     const updated = { ...uploadBlocks, [type]: imageFile };
-    // 使用 props 把更新圖片傳給 ImageUploadBlock ，達成畫面同步更新
+    // 使用 props 把更新圖片傳給 ImageUploadBlock( File 類型 ) ，達成畫面同步更新
     setUploadBlocks(updated);
-    // 若是原圖，就同步更新 preview
     if (type === "Swap") {
       // 原圖會顯示在結果頁，需要呼叫 usePreviewUrl 中的 handleFileSelect 來產生 preview
       setSwapPreviewFile(imageFile);

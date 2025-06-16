@@ -25,7 +25,7 @@ function UploadDialog({ open, onClose, onConfirm }) {
     confirmLockRef.current = true;
     try {
       if (selectedFile) {
-        // 使用者「上傳圖片」
+        // 使用者「上傳圖片」，類型為 File
         onConfirm(selectedFile); // 傳 File 給 Index
         handleReset(); // 清掉預覽並關閉 Dialog
       } else if (selectedTemplateUrl) {

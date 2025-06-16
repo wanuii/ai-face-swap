@@ -15,8 +15,8 @@ const ResultDialog = ({ open, onClose, imageSrc }) => {
     if (!resultPreview?.file) return;
 
     try {
-      const watermarked = await downloadImage(resultPreview.file);
-      const url = URL.createObjectURL(watermarked);
+      const watermarked = await downloadImage(resultPreview.file); // 得到加好浮水印的 File
+      const url = URL.createObjectURL(watermarked); // 把它變成可下載的 blob URL
 
       // 嘗試使用 a.download 下載
       const link = document.createElement("a");

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import titleImage from "@/assets/title_page.webp";
+import underlineCrayon from "@/assets/crayon-underline.webp";
 import ShareButtons from "./ShareButtons";
 function TitlePage() {
   const [bgLoaded, setBgLoaded] = useState(false);
@@ -44,7 +45,12 @@ function TitlePage() {
         </h1>
         <h2 className="font-biaukai text-5xl mt-3">
           體驗不同
-          <span className="underline-crayon">人生</span>
+          <span
+            className="underline-crayon"
+            style={{ "--crayon-img": `url(${underlineCrayon})` }}
+          >
+            人生
+          </span>
         </h2>
         <div className="mt-6 mb-6 font-bold flex items-center flex-col">
           <p>光臨本空間享有極致換臉體驗，</p>
