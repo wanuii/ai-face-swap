@@ -1,6 +1,7 @@
 import { toast } from "sonner";
 import { Modal, Button, Spin } from "antd";
 import { useAutoPreviewUrl } from "@/hooks/useAutoPreviewUrl";
+import { useImagePreloader } from "@/hooks/useImagePreloader";
 import { downloadImage } from "@/utils/downloadImage";
 import ShareButtons from "@/components/ShareButtons";
 
@@ -11,7 +12,8 @@ const ResultDialog = ({ open, onClose, imageSrc }) => {
     { src: swapPreview?.previewUrl ?? null, alt: "原圖" },
     { src: resultPreview?.previewUrl ?? null, alt: "結果圖片" },
   ];
-  const allImagesReady = imageList.every((img) => !!img.src);
+  const imageUrls = [swapPreview?.previewUrl, resultPreview?.previewUrl];
+  const allImagesReady = useImagePreloader(imageUrls);
 
   const handleDownload = async () => {
     if (!resultPreview?.file) return;

@@ -1,9 +1,10 @@
 import { useState, useRef } from "react";
 import { toast } from "sonner";
-import { Modal, Upload, Button } from "antd";
+import { Modal, Upload, Button, Spin } from "antd";
 import { InboxOutlined } from "@ant-design/icons";
 import { usePreviewUrl } from "@/hooks/usePreviewUrl";
 import { useFaceTemplate } from "@/hooks/useFaceTemplate";
+import { useImagePreloader } from "@/hooks/useImagePreloader";
 
 const { Dragger } = Upload;
 function UploadDialog({ open, onClose, onConfirm }) {
@@ -11,6 +12,7 @@ function UploadDialog({ open, onClose, onConfirm }) {
   const { previewUrl, selectedFile, handleFileSelect, handleReset } =
     usePreviewUrl();
   const faceList = useFaceTemplate(); // 使用共用模板 hook
+  const templateReady = useImagePreloader(faceList);
 
   const [selectedTemplateUrl, setSelectedTemplateUrl] = useState(null); // 記住被選的模板圖
 
@@ -125,22 +127,24 @@ function UploadDialog({ open, onClose, onConfirm }) {
           <p className="text-xl">選擇模板</p>
           <div className="w-full bg-slate-100 rounded-md mt-5 p-2">
             <p>模板圖片來自 Pexels ，僅供測試</p>
-            <div className="template-grid">
-              {faceList.map((img, i) => (
-                <img
-                  key={i}
-                  src={img}
-                  alt={`face-${i}`}
-                  className={`template-image ${
-                    selectedTemplateUrl === img ? "ring-2 ring-blue-500" : ""
-                  }`}
-                  onClick={() => {
-                    setSelectedTemplateUrl(img);
-                    handleReset(); // ✅ 點選模板就清除上傳圖預覽
-                  }}
-                />
-              ))}
-            </div>
+            <Spin spinning={!templateReady} tip="圖片載入中...">
+              <div className="template-grid">
+                {faceList.map((img, i) => (
+                  <img
+                    key={i}
+                    src={img}
+                    alt={`face-${i}`}
+                    className={`template-image ${
+                      selectedTemplateUrl === img ? "ring-2 ring-blue-500" : ""
+                    }`}
+                    onClick={() => {
+                      setSelectedTemplateUrl(img);
+                      handleReset(); // ✅ 點選模板就清除上傳圖預覽
+                    }}
+                  />
+                ))}
+              </div>
+            </Spin>
           </div>
         </div>
       </div>
