@@ -23,7 +23,8 @@ function Index() {
   const [isLoading, setIsLoading] = useState(false); // 控制 loading 效果
   const [currentType, setCurrentType] = useState(null); // 控制目前開啟的對話框類型
   const requestIdRef = useRef(0); // 防止多次呼叫 API 時結果覆蓋錯誤
-
+  // 傳給子層的 currentId
+  const currentRequestId = requestIdRef.current;
   // Hook 處理結果圖預覽
   const {
     // previewUrl: resultPreviewUrl,
@@ -171,6 +172,7 @@ function Index() {
               blockType={type}
               onViewClick={() => setCurrentType(type)}
               loading={type === "Result" && isLoading}
+              loadingKey={type === "Result" ? currentRequestId : null}
             />
           ))}
         </div>

@@ -8,6 +8,7 @@ function ImageUploadBlock({
   onViewClick,
   blockType,
   loading = false,
+  loadingKey,
 }) {
   const { ref, inView } = useInView({ threshold: 0.5 });
   const { previewUrl } = useAutoPreviewUrl(imageSrc); // 自動處理 File / string URL
@@ -16,7 +17,7 @@ function ImageUploadBlock({
     Swap: "模板選擇",
     Result: "細節&下載",
   };
-  const seconds = useLoadingTimer(loading);
+  const seconds = useLoadingTimer(loadingKey);
   return (
     <div className="rounded-xl overflow-hidden">
       <Spin
