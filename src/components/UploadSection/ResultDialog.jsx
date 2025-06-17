@@ -54,7 +54,11 @@ const ResultDialog = ({ open, onClose, imageSrc }) => {
       className="custom-result-modal"
       centered
     >
-      <Spin spinning={!allImagesReady} tip="圖片載入中...">
+      <Spin
+        spinning={!allImagesReady}
+        tip="圖片載入中..."
+        wrapperClassName={!allImagesReady ? "spin-mask result-spin-mask" : ""}
+      >
         <div className="flex flex-col justify-center items-center sm:flex-row gap-5 my-8">
           {imageList.map((item, index) => (
             <div

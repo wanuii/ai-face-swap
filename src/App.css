@@ -187,3 +187,22 @@ html, body {
   border-radius: 50px;
 }
 /* ------------- ------------- ------------- */
+/* ------------- Spin 遮罩樣式 ------------- */
+/* 共用遮罩基礎樣式 */
+.spin-mask .ant-spin-container {
+  position: relative;
+}
+.spin-mask .ant-spin-container::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 1;
+  z-index: 1;
+}
+/* 各區域指定不同遮罩顏色 */
+.upload-spin-mask .ant-spin-container::before {
+  background-color: white;
+}
+.result-spin-mask .ant-spin-container::before {
+  background-color: #d0c3c3;
+}

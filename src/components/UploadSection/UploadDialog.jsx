@@ -127,7 +127,13 @@ function UploadDialog({ open, onClose, onConfirm }) {
           <p className="text-xl">選擇模板</p>
           <div className="w-full bg-slate-100 rounded-md mt-5 p-2">
             <p>模板圖片來自 Pexels ，僅供測試</p>
-            <Spin spinning={!templateReady} tip="圖片載入中...">
+            <Spin
+              spinning={!templateReady}
+              tip="圖片載入中..."
+              wrapperClassName={
+                !templateReady ? "spin-mask upload-spin-mask" : ""
+              }
+            >
               <div className="template-grid">
                 {faceList.map((img, i) => (
                   <img
