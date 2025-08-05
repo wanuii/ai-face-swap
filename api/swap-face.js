@@ -15,7 +15,7 @@ export default async function handler(req, res) {
       headers: {
         "Content-Type": req.headers["content-type"],
       },
-      body: req.body,
+      body: req,
     });
 
     if (!response.ok) {
