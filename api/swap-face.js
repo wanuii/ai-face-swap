@@ -2,6 +2,8 @@ import { Buffer } from "buffer";
 import { parse } from "url";
 
 export default async function handler(req, res) {
+  console.log("🔥 [swap-face] Handler triggered");
+
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Only POST is allowed" });
   }
@@ -12,7 +14,8 @@ export default async function handler(req, res) {
     const { pathname } = parse(req.url);
     const backendPath = pathname.replace(/^\/api\/swap-face/, "");
     const targetUrl = `${BACKEND_BASE_URL}${backendPath}`;
-    console.log("🔄 Proxying to:", targetUrl);
+
+    console.log("➡️ Proxying to:", targetUrl);
 
     const response = await fetch(targetUrl, {
       method: "POST",
@@ -24,7 +27,7 @@ export default async function handler(req, res) {
 
     if (!response.ok) {
       const text = await response.text();
-      console.error("❌ Backend error:", text);
+      console.error("❌ Backend responded with error:", text);
       return res.status(500).json({ error: "Backend failed", message: text });
     }
 
@@ -35,6 +38,8 @@ export default async function handler(req, res) {
     res.setHeader("Cache-Control", "no-store");
     res.setHeader("Content-Disposition", "inline; filename=swapped.jpg");
     res.send(Buffer.from(buffer));
+
+    console.log("✅ Image response sent back to frontend");
   } catch (err) {
     console.error("🔥 Proxy exception:", err);
     res.status(500).json({ error: "Proxy exception", message: err.message });
