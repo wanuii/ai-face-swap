@@ -1,5 +1,4 @@
 import { Buffer } from "buffer";
-import { parse } from "url";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -9,9 +8,7 @@ export default async function handler(req, res) {
   const BACKEND_BASE_URL = process.env.SWAP_API_BASE_URL;
 
   try {
-    const { pathname } = parse(req.url); // e.g. /api/swap-face/process-images
-    const backendPath = pathname.replace(/^\/api\/swap-face/, ""); // → /process-images
-    const targetUrl = `${BACKEND_BASE_URL}${backendPath}`;
+    const targetUrl = `${BACKEND_BASE_URL}/process-images/`;
 
     const response = await fetch(targetUrl, {
       method: "POST",
