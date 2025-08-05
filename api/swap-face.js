@@ -1,5 +1,4 @@
 import { Buffer } from "buffer";
-import { parse } from "url";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -8,11 +7,11 @@ export default async function handler(req, res) {
 
   const BACKEND_BASE_URL = process.env.SWAP_API_BASE_URL;
 
-  const { pathname } = parse(req.url); // e.g. /api/swap-face/process-images
-  const backendPath = pathname.replace("/api/swap-face", ""); // → /process-images
-
   try {
-    const response = await fetch(`${BACKEND_BASE_URL}${backendPath}`, {
+    const relativePath = req.url.replace(/^\/api\/swap-face/, "");
+    const targetUrl = `${BACKEND_BASE_URL}${relativePath}`;
+
+    const response = await fetch(targetUrl, {
       method: "POST",
       headers: {
         "Content-Type": req.headers["content-type"],
@@ -28,7 +27,7 @@ export default async function handler(req, res) {
     res.setHeader("Content-Disposition", "inline; filename=swapped.jpg");
     res.send(Buffer.from(buffer));
   } catch (err) {
-    console.error("proxy failed:", err);
-    res.status(500).json({ error: "Server error", message: err.message });
+    console.error("Proxy error:", err.message);
+    res.status(500).json({ error: "Proxy failed", message: err.message });
   }
 }
