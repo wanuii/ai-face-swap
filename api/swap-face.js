@@ -1,17 +1,21 @@
 import { Buffer } from "buffer";
+import { parse } from "url";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Only POST is allowed" });
   }
 
-  const BACKEND_BASE_URL = process.env.SWAP_API_BASE_URL; // 不要有 / 結尾
+  const BACKEND_BASE_URL = process.env.SWAP_API_BASE_URL;
+
+  const { pathname } = parse(req.url); // e.g. /api/swap-face/process-images
+  const backendPath = pathname.replace("/api/swap-face", ""); // → /process-images
 
   try {
-    const response = await fetch(`${BACKEND_BASE_URL}/process-images/`, {
+    const response = await fetch(`${BACKEND_BASE_URL}${backendPath}`, {
       method: "POST",
       headers: {
-        "Content-Type": req.headers["content-type"], // 保持原 multipart
+        "Content-Type": req.headers["content-type"],
       },
       body: req.body,
     });
@@ -20,9 +24,11 @@ export default async function handler(req, res) {
     const buffer = await blob.arrayBuffer();
 
     res.setHeader("Content-Type", "image/jpeg");
+    res.setHeader("Cache-Control", "no-store");
+    res.setHeader("Content-Disposition", "inline; filename=swapped.jpg");
     res.send(Buffer.from(buffer));
   } catch (err) {
-    console.error("代理錯誤", err);
+    console.error("proxy failed:", err);
     res.status(500).json({ error: "Server error", message: err.message });
   }
 }
