@@ -5,7 +5,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Only POST is allowed" });
   }
 
-  const BACKEND_BASE_URL = process.env.SWAP_API_BASE_URL; // ✅ 不要用 VITE_
+  const BACKEND_BASE_URL = process.env.SWAP_API_BASE_URL; // 不要有 / 結尾
 
   try {
     const response = await fetch(`${BACKEND_BASE_URL}/process-images/`, {
@@ -13,7 +13,7 @@ export default async function handler(req, res) {
       headers: {
         "Content-Type": req.headers["content-type"], // 保持原 multipart
       },
-      body: req.body, // 注意：這裡是簡化寫法，正式應處理 formData 流
+      body: req.body,
     });
 
     const blob = await response.blob();
@@ -22,6 +22,7 @@ export default async function handler(req, res) {
     res.setHeader("Content-Type", "image/jpeg");
     res.send(Buffer.from(buffer));
   } catch (err) {
+    console.error("代理錯誤", err);
     res.status(500).json({ error: "Server error", message: err.message });
   }
 }

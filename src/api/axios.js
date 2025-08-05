@@ -4,7 +4,7 @@ const isProd = import.meta.env.MODE === "production";
 
 export const axiosInstance = axios.create({
   baseURL: isProd
-    ? "/api/swap-face/process-images"
+    ? "/api/swap-face"
     : import.meta.env.VITE_API_BASE,
   responseType: "blob",
 });
