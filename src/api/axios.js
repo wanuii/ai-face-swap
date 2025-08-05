@@ -1,6 +1,10 @@
 import axios from "axios";
 
+const isProd = import.meta.env.MODE === "production";
+
 export const axiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE,
-  responseType: "blob"
+  baseURL: isProd
+    ? "/api/swap-face"
+    : import.meta.env.VITE_API_BASE,
+  responseType: "blob",
 });
