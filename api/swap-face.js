@@ -16,6 +16,7 @@ export default async function handler(req, res) {
         "Content-Type": req.headers["content-type"],
       },
       body: req,
+      duplex: "half",
     });
 
     if (!response.ok) {
