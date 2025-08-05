@@ -11,9 +11,8 @@ export default async function handler(req, res) {
   try {
     const { pathname } = parse(req.url);
     const backendPath = pathname.replace(/^\/api\/swap-face/, "");
-
     const targetUrl = `${BACKEND_BASE_URL}${backendPath}`;
-    console.log("🧪 Proxying to:", targetUrl);
+    console.log("🔄 Proxying to:", targetUrl);
 
     const response = await fetch(targetUrl, {
       method: "POST",
@@ -23,6 +22,12 @@ export default async function handler(req, res) {
       body: req.body,
     });
 
+    if (!response.ok) {
+      const text = await response.text();
+      console.error("❌ Backend error:", text);
+      return res.status(500).json({ error: "Backend failed", message: text });
+    }
+
     const blob = await response.blob();
     const buffer = await blob.arrayBuffer();
 
@@ -31,7 +36,7 @@ export default async function handler(req, res) {
     res.setHeader("Content-Disposition", "inline; filename=swapped.jpg");
     res.send(Buffer.from(buffer));
   } catch (err) {
-    console.error("🔥 Proxy error:", err.message);
-    res.status(500).json({ error: "Proxy failed", message: err.message });
+    console.error("🔥 Proxy exception:", err);
+    res.status(500).json({ error: "Proxy exception", message: err.message });
   }
 }
