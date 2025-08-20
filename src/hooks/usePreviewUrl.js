@@ -4,7 +4,7 @@
 
 import { useEffect, useState } from "react";
 
-export function usePreviewUrl(initialFile = null) {
+export const usePreviewUrl = (initialFile = null) => {
   // 使用函式初始化 useState(() => ...) 避免每次 render 都跑 createObjectURL
   // 如果外部有提供 initialFile（預設為 null），會立刻建立預覽網址
   const [previewUrl, setPreviewUrl] = useState(() =>

@@ -7,7 +7,7 @@ import { useFaceTemplate } from "@/hooks/useFaceTemplate";
 import { useImagePreloader } from "@/hooks/useImagePreloader";
 
 const { Dragger } = Upload;
-function UploadDialog({ open, onClose, onConfirm }) {
+const UploadDialog = ({ open, onClose, onConfirm }) => {
   const confirmLockRef = useRef(false); // 是否正在處理中
   const { previewUrl, selectedFile, handleFileSelect, handleReset } =
     usePreviewUrl();
@@ -156,6 +156,6 @@ function UploadDialog({ open, onClose, onConfirm }) {
       </div>
     </Modal>
   );
-}
+};
 
 export default UploadDialog;

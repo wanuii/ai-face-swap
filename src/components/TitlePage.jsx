@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import titleImage from "@/assets/title_page.webp";
 import underlineCrayon from "@/assets/crayon-underline.webp";
 import ShareButtons from "./ShareButtons";
-function TitlePage() {
+const TitlePage = () => {
   const [bgLoaded, setBgLoaded] = useState(false);
 
   useEffect(() => {
@@ -71,6 +71,6 @@ function TitlePage() {
       </div>
     </div>
   );
-}
+};
 
 export default TitlePage;

@@ -3,7 +3,7 @@
 //  當 loading 為 true 時，每秒遞增一次計時器
 //  當 loading 為 false 或元件卸載時，自動停止計時
 import { useEffect, useState } from "react";
-export function useLoadingTimer(key) {
+export const useLoadingTimer = (key) => {
   const [seconds, setSeconds] = useState(0);
 
   useEffect(() => {

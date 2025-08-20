@@ -19,7 +19,7 @@ const urlToFile = async (url, filename) => {
   return new File([blob], filename, { type: blob.type });
 };
 
-function Index() {
+const Index = () => {
   const [isLoading, setIsLoading] = useState(false); // 控制 loading 效果
   const [currentType, setCurrentType] = useState(null); // 控制目前開啟的對話框類型
   const requestIdRef = useRef(0); // 防止多次呼叫 API 時結果覆蓋錯誤
@@ -193,6 +193,6 @@ function Index() {
       />
     </>
   );
-}
+};
 
 export default Index;

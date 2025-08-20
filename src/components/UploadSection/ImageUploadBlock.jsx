@@ -3,13 +3,13 @@ import { useInView } from "react-intersection-observer";
 import { useLoadingTimer } from "@/hooks/useLoadingTimer";
 import { useAutoPreviewUrl } from "@/hooks/useAutoPreviewUrl";
 
-function ImageUploadBlock({
+const ImageUploadBlock = ({
   imageSrc,
   onViewClick,
   blockType,
   loading = false,
   loadingKey,
-}) {
+}) => {
   const { ref, inView } = useInView({ threshold: 0.5 });
   const { previewUrl } = useAutoPreviewUrl(imageSrc); // 自動處理 File / string URL
   const labelMap = {
@@ -63,5 +63,5 @@ function ImageUploadBlock({
       </Spin>
     </div>
   );
-}
+};
 export default ImageUploadBlock;

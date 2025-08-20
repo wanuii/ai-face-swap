@@ -4,7 +4,7 @@
 
 import { useEffect, useState } from "react";
 
-export function useAutoPreviewUrl(input) {
+export const useAutoPreviewUrl = (input) => {
   const [previewUrl, setPreviewUrl] = useState(() => {
     if (!input) return null;
     if (typeof input === "string") return input; // 直接使用字串網址
