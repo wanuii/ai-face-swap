@@ -39,6 +39,8 @@
 | `useAutoPreviewUrl` | 自動處理 File 或 URL 字串來源，產生預覽圖                 |
 | `useLoadingTimer`   | 當正在換臉時，每秒記錄等待秒數，可顯示在 UI 上            |
 | `useFaceTemplate`   | 動態讀取 `/assets/templates` 中所有範本圖片，供使用者選擇 |
+| `useImagePreloader` | 接收一組圖片 URL，預先載入圖片並回傳載入完成狀態          |
+| `useTimeoutWarning` | 設定時間後觸發提示或回呼，用於 API 或操作逾時提醒         |
 
 ---
 

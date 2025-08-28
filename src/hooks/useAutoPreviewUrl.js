@@ -5,29 +5,28 @@
 import { useEffect, useState } from "react";
 
 export const useAutoPreviewUrl = (input) => {
-  const [previewUrl, setPreviewUrl] = useState(() => {
-    if (!input) return null;
-    if (typeof input === "string") return input; // 直接使用字串網址
-    if (input instanceof File) return URL.createObjectURL(input);
-    return null;
-  });
+const [previewUrl, setPreviewUrl] = useState(null);
 
   useEffect(() => {
     if (!input) {
       setPreviewUrl(null);
       return;
     }
-
+    // 字串 URL 直接用
     if (typeof input === "string") {
       setPreviewUrl(input);
       return;
     }
 
+    // File/Blob 產生 object URL
     if (input instanceof File) {
       const objectUrl = URL.createObjectURL(input);
       setPreviewUrl(objectUrl);
-      return () => URL.revokeObjectURL(objectUrl); // 清理記憶體
+      return () => URL.revokeObjectURL(objectUrl); // 依賴變動/卸載時釋放這個 URL，清理記憶體
     }
+
+    // 其他型別：保險
+    setPreviewUrl(null);
   }, [input]);
 
   return {
